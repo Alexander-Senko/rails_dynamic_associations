@@ -7,11 +7,11 @@ require 'rails_dynamic_associations/version'
 Gem::Specification.new do |s|
 	s.name        = 'rails_dynamic_associations'
 	s.version     = RailsDynamicAssociations::VERSION
-	s.authors     = ['TODO: Your name']
-	s.email       = ['TODO: Your email']
-	s.homepage    = 'TODO'
-	s.summary     = 'TODO: Summary of RailsDynamicAssociations.'
-	s.description = 'TODO: Description of RailsDynamicAssociations.'
+	s.authors     = ['Alexander Senko']
+	s.email       = ['Alexander.Senko@gmail.com']
+#	s.homepage    = 'TODO'
+	s.summary     = 'DB-driven model associations for Rails.'
+#	s.description = 'TODO: Description of RailsDynamicAssociations.'
 
 	s.files = Dir['{app,config,db,lib}/**/*'] + ['MIT-LICENSE', 'Rakefile', 'README.rdoc']
 
