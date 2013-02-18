@@ -1,6 +1,5 @@
 class Role < ActiveRecord::Base
 	has_many :relations
-	has_many :users, :through => :relations, :source => :source, :source_type => 'User'
 
 	validates :name, :presence => true, :uniqueness => true
 
