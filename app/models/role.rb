@@ -11,4 +11,13 @@ class Role < ActiveRecord::Base
 		joins(:relations).
 			where relations: { id: Relation.of_abstract.to(target) } # TODO: simplify
 	}
+
+	def self.find_or_create_named *names
+		names.flatten!.compact!
+
+		(existing = named(names)).all +
+			(names - existing.map(&:name)).map { |name|
+				create name: name
+			}
+	end
 end

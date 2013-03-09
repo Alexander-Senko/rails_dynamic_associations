@@ -38,6 +38,18 @@ class Relation < ActiveRecord::Base
 		of_abstract.to_abstract
 	}
 
+	def self.seed source, target, roles = nil
+		(roles.present? ? by_roles(roles) : [ self ]).map do |scope|
+			scope.create source_type: source,
+			             target_type: target
+		end
+	end
+
+	def self.by_roles *names
+		Role.find_or_create_named(*names).
+			map &:relations
+	end
+
 
 	# Using polymorphic associations in combination with single table inheritance (STI) is
 	# a little tricky. In order for the associations to work as expected, ensure that you
