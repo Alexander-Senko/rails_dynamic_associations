@@ -5,11 +5,11 @@ module RailsDynamicAssociations::ActiveRecord
 		extend ActiveSupport::Concern
 
 		def relation_from source
-			source_relations.where(:source_type => source.class.base_class, :source_id => source.id).first
+			source_relations.where(source_type: source.class.base_class, source_id: source.id).first
 		end
 
 		def relation_to target
-			target_relations.where(:target_type => target.class.base_class, :target_id => target.id).first
+			target_relations.where(target_type: target.class.base_class, target_id: target.id).first
 		end
 
 		module ClassMethods
@@ -17,14 +17,14 @@ module RailsDynamicAssociations::ActiveRecord
 
 			def setup_relation target, type, role = nil
 				unless (through_association = :"#{type}_relations").in? reflections then
-					has_many through_association, :as => ([:source, :target] - [type]).first, :class_name => 'Relation'
+					has_many through_association, as: ([:source, :target] - [type]).first, class_name: 'Relation'
 				end
 
 				with_options({
-					:through     => through_association,
-					:source      => type,
-					:source_type => target.base_class.name,
-					:class_name  => target.name,
+					through:     through_association,
+					source:      type,
+					source_type: target.base_class.name,
+					class_name:  target.name,
 				}) do |model|
 					association = if target == self then
 						type == :target ? 'parent' : 'child'
@@ -45,14 +45,14 @@ module RailsDynamicAssociations::ActiveRecord
 							"#{type == :target ? role.name.passivize : role.name}_#{association}"
 						end.tableize.to_sym
 
-						model.has_many association_with_role, :conditions => { :relations => { :role_id => role.id } }
+						model.has_many association_with_role, conditions: { relations: { role_id: role.id } }
 						yield association_with_role if block_given?
 					end
 				end
 
 				for association, method in {
-					:parents  => :ancestors,
-					:children => :descendants,
+					parents:  :ancestors,
+					children: :descendants,
 				} do
 					define_recursive_methods association, method if association.in? reflections and not method_defined? method
 				end
@@ -63,8 +63,8 @@ module RailsDynamicAssociations::ActiveRecord
 			def define_association_with_roles association
 				redefine_method "#{association}_with_roles" do |*roles|
 					send(association).where(
-						:relations => {
-							:role_id => Role.where(:name => roles.flatten.map(&:to_s)).pluck(:id)
+						relations: {
+							role_id: Role.where(name: roles.flatten.map(&:to_s)).pluck(:id)
 						}
 					)
 				end
@@ -78,7 +78,7 @@ module RailsDynamicAssociations::ActiveRecord
 				end
 
 				redefine_method distance_method do
-					(with_distance = proc { |level, distance|
+					(with_distance = -> (level, distance) {
 						if level.is_a? Array then
 							level.inject(ActiveSupport::OrderedHash.new) { |hash, node|
 								hash.merge with_distance[node, distance.next]
