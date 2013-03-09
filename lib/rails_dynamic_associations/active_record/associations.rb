@@ -64,7 +64,7 @@ module RailsDynamicAssociations::ActiveRecord
 				redefine_method "#{association}_with_roles" do |*roles|
 					send(association).where(
 						relations: {
-							role_id: Role.where(name: roles.flatten.map(&:to_s)).pluck(:id)
+							role_id: Role.named(roles).pluck(:id)
 						}
 					)
 				end

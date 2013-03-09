@@ -5,21 +5,39 @@ class Relation < ActiveRecord::Base
 
 	delegate :name, to: :role, allow_nil: true
 
-	scope :in, -> (target) {
-		where({
-			source_id:   nil,
-		}.merge case target
-		when :general then {
-			target_type: nil,
-			target_id:   nil,
-		} when Class then {
-			target_type: target.name,
-			target_id:   nil,
-		} else {
-			target_type: target.class.name,
-			target_id:   target.id,
-		} end).includes(:role)
-		}
+	for direction, attribute in {
+		of: :source,
+		to: :target,
+	} do
+		-> (direction, attribute) {
+			scope "#{direction}_abstract", -> {
+				where "#{attribute}_id" => nil
+			}
+
+			scope "#{direction}_general", -> {
+				send("#{direction}_abstract").
+					where "#{attribute}_type" => nil
+			}
+
+			scope direction, -> (object) {
+				case object
+				when Symbol then
+					send "#{direction}_#{object}"
+				when Class then
+					send("#{direction}_abstract").
+						where "#{attribute}_type" => object
+				else
+					where "#{attribute}_type" => object.class.name,
+					      "#{attribute}_id"   => object.id
+				end
+			}
+		}.(direction, attribute)
+	end
+
+	scope :abstract, -> {
+		of_abstract.to_abstract
+	}
+
 
 	# Using polymorphic associations in combination with single table inheritance (STI) is
 	# a little tricky. In order for the associations to work as expected, ensure that you
