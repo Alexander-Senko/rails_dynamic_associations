@@ -9,9 +9,10 @@ Gem::Specification.new do |s|
 	s.version     = RailsDynamicAssociations::VERSION
 	s.authors     = [ 'Alexander Senko' ]
 	s.email       = [ 'Alexander.Senko@gmail.com' ]
-#	s.homepage    = 'TODO'
+	s.homepage    = 'https://github.com/softpro/rails_dynamic_associations'
 	s.summary     = 'DB-driven model associations for Rails.'
-#	s.description = 'TODO: Description of RailsDynamicAssociations.'
+	s.description = 'Define your model associations in the database without changing the schema or models.'
+	s.license     = 'MIT'
 
 	s.files = Dir['{app,config,db,lib}/**/*'] + ['MIT-LICENSE', 'Rakefile', 'README.rdoc']
 
