@@ -45,7 +45,7 @@ module RailsDynamicAssociations::ActiveRecord
 							"#{type == :target ? role.name.passivize : role.name}_#{association}"
 						end.tableize.to_sym
 
-						model.has_many association_with_role, conditions: { relations: { role_id: role.id } }
+						model.has_many association_with_role, -> { where relations: { role_id: role.id } }, {} # BUG in Rails 4.0.0.beta1
 						yield association_with_role if block_given?
 					end
 				end
