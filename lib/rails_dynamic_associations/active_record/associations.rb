@@ -15,40 +15,9 @@ module RailsDynamicAssociations::ActiveRecord
 		module ClassMethods
 			protected
 
-			def setup_relation target, type, role = nil
-				unless (through_association = :"#{type}_relations").in? reflections then
-					has_many through_association, as: ([:source, :target] - [type]).first, class_name: 'Relation'
-				end
-
-				with_options({
-					through:     through_association,
-					source:      type,
-					source_type: target.base_class.name,
-					class_name:  target.name,
-				}) do |model|
-					association = if target == self then
-						type == :target ? 'parent' : 'child'
-					else
-						target.name.split('::').reverse.join
-					end.tableize.to_sym
-
-					unless association.in? reflections then
-						model.has_many association unless role # TODO
-						define_association_with_roles association
-						yield association if block_given?
-					end
-
-					if role then
-						association_with_role = if target == self || target <= User then # TODO: DRY!
-							type == :target ? "#{role.name.passivize}_#{target.name.split('::').reverse.join}" : role.name
-						else
-							"#{type == :target ? role.name.passivize : role.name}_#{association}"
-						end.tableize.to_sym
-
-						model.has_many association_with_role, conditions: { relations: { role_id: role.id } }
-						yield association_with_role if block_given?
-					end
-				end
+			def setup_relation type, target = self, role = nil
+				define_association type, target
+				define_association type, target, role if role
 
 				for association, method in {
 					parents:  :ancestors,
@@ -59,6 +28,29 @@ module RailsDynamicAssociations::ActiveRecord
 			end
 
 			private
+
+			def define_relations_association type, target = self, role = nil
+				:"#{role ? association_name(type, target, role).to_s.singularize : type}_relations".tap do |association|
+					unless association.in? reflections then
+						has_many association, conditions: role && { role_id: role.id },
+						         as: ([ :source, :target ] - [ type ]).first, class_name: 'Relation'
+					end
+				end
+			end
+
+			def define_association type, target = self, role = nil
+				unless (association = association_name(type, target, role)).in? reflections then
+					has_many association,
+					         through:     define_relations_association(type, target, role),
+					         source:      type,
+					         source_type: target.base_class.name,
+					         class_name:  target.name
+
+					define_association_with_roles association unless role
+
+					yield association if block_given?
+				end
+			end
 
 			def define_association_with_roles association
 				redefine_method "#{association}_with_roles" do |*roles|
@@ -92,6 +84,31 @@ module RailsDynamicAssociations::ActiveRecord
 				redefine_method method do
 					send(tree_method).flatten
 				end
+			end
+
+			def association_name type, target = self, role = nil
+				if role then
+					if target == self || target <= User then
+						{
+							source: role.name,
+							target: "#{role.name.passivize}_#{target.name.split('::').reverse.join}",
+						}[type]
+					else
+						"#{{
+							source: role.name,
+							target: role.name.passivize,
+						}[type]}_#{association_name type, target}"
+					end
+				else
+					if target == self then
+						{
+							source: 'child',
+							target: 'parent',
+						}[type]
+					else
+						target.name.split('::').reverse.join
+					end
+				end.tableize.to_sym
 			end
 		end
 	end

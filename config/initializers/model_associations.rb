@@ -4,7 +4,7 @@ ActiveSupport.on_load :model_class do
 			source: :to,
 			target: :of,
 		}[type], self).select(&:"#{type}_type") do
-			setup_relation relation.send("#{type}_type").constantize, type, relation.role do |association|
+			setup_relation type, relation.send("#{type}_type").constantize, relation.role do |association|
 				attr_accessible "#{association.to_s.singularize}_ids"
 			end
 		end
