@@ -4,7 +4,7 @@ ActiveSupport.on_load :model_class do
 			source: :to,
 			target: :of,
 		}[type], self).select(&:"#{type}_type") do
-			setup_relation relation.send("#{type}_type").constantize, type, relation.role
+			setup_relation type, relation.send("#{type}_type").constantize, relation.role
 		end
 	end if self != Relation and Relation.table_exists? # needed for DB migrations & schema initializing
 end
