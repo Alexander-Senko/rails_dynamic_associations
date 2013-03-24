@@ -25,9 +25,9 @@ class Relation < ActiveRecord::Base
 					send "#{direction}_#{object}"
 				when Class then
 					send("#{direction}_abstract").
-						where "#{attribute}_type" => object
+						where "#{attribute}_type" => object.base_class
 				else
-					where "#{attribute}_type" => object.class.base_class.name,
+					where "#{attribute}_type" => object.class.base_class,
 					      "#{attribute}_id"   => object.id
 				end
 			}
