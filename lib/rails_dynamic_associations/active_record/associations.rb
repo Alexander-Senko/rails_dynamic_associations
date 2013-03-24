@@ -4,14 +4,6 @@ module RailsDynamicAssociations::ActiveRecord
 	module Associations
 		extend ActiveSupport::Concern
 
-		def relations_from source
-			source_relations.where source_type: source.class.base_class, source_id: source.id
-		end
-
-		def relations_to target
-			target_relations.where target_type: target.class.base_class, target_id: target.id
-		end
-
 		module ClassMethods
 			protected
 
