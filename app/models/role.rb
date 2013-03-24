@@ -7,9 +7,17 @@ class Role < ActiveRecord::Base
 		where name: names.flatten.map(&:to_s)
 	}
 
-	scope :in, -> (target) {
-		joins(:relations).
-			where relations: { id: Relation.of_abstract.to(target) } # TODO: simplify
+	scope :available, -> {
+		includes(:relations).
+			where relations: { id: Relation.of_abstract } # TODO: simplify
+	}
+
+	scope :in, -> (object) {
+		where relations: { id: Relation.to(object) } # TODO: simplify
+	}
+
+	scope :for, -> (subject) {
+		where relations: { id: Relation.of(subject) } # TODO: simplify
 	}
 
 	def self.find_or_create_named *names
