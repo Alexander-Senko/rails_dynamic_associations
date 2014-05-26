@@ -51,6 +51,12 @@ class Relation < ActiveRecord::Base
 	end
 
 
+	def name= role_name
+		self.role = role_name &&
+			Role.find_or_initialize_by(name: role_name)
+	end
+
+
 	# Using polymorphic associations in combination with single table inheritance (STI) is
 	# a little tricky. In order for the associations to work as expected, ensure that you
 	# store the base model for the STI models in the type column of the polymorphic
