@@ -21,7 +21,8 @@ class Role < ActiveRecord::Base
 	}
 
 	def self.find_or_create_named *names
-		names.flatten!.compact!
+		names.flatten!
+		names.compact!
 
 		(existing = named(names)).all +
 			(names - existing.map(&:name)).map { |name|
