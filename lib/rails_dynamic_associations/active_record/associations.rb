@@ -11,10 +11,7 @@ module RailsDynamicAssociations::ActiveRecord
 				define_association type, target
 				define_association type, target, role if role
 
-				for association, method in {
-					parents:  :ancestors,
-					children: :descendants,
-				} do
+				for association, method in RailsDynamicAssociations.self_referential_recursive do
 					define_recursive_methods association, method if association.in? reflections and not method_defined? method
 				end
 			end
@@ -25,7 +22,7 @@ module RailsDynamicAssociations::ActiveRecord
 				:"#{role ? association_name(type, target, role).to_s.singularize : type}_relations".tap do |association|
 					unless association.in? reflections then
 						has_many association, conditions: role && { role_id: role.id },
-						         as: ([ :source, :target ] - [ type ]).first, class_name: 'Relation'
+						         as: (RailsDynamicAssociations.directions.keys - [ type ]).first, class_name: 'Relation'
 					end
 				end
 			end
@@ -93,10 +90,7 @@ module RailsDynamicAssociations::ActiveRecord
 					end
 				else
 					if target == self then
-						{
-							source: 'child',
-							target: 'parent',
-						}[type]
+						RailsDynamicAssociations.self_referential[type].to_s
 					else
 						target.name.split('::').reverse.join
 					end

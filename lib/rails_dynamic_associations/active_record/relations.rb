@@ -5,10 +5,7 @@ module RailsDynamicAssociations::ActiveRecord
 		extend ActiveSupport::Concern
 
 		module ClassMethods
-			{
-				source: :to,
-				target: :of,
-			}.each &-> (association, method) do
+			RailsDynamicAssociations.opposite_directions.each &-> (association, method) do
 				define_method "#{association}_relations" do
 					Relation.send method, self
 				end

@@ -5,33 +5,28 @@ class Relation < ActiveRecord::Base
 
 	delegate :name, to: :role, allow_nil: true
 
-	for direction, attribute in {
-		of: :source,
-		to: :target,
-	} do
-		-> (direction, attribute) {
-			scope "#{direction}_abstract", -> {
-				where "#{attribute}_id" => nil
-			}
+	RailsDynamicAssociations.directions.each &-> (association, method) do
+		scope "#{method}_abstract", -> {
+			where "#{association}_id" => nil
+		}
 
-			scope "#{direction}_general", -> {
-				send("#{direction}_abstract").
-					where "#{attribute}_type" => nil
-			}
+		scope "#{method}_general", -> {
+			send("#{method}_abstract").
+				where "#{association}_type" => nil
+		}
 
-			scope direction, -> (object) {
-				case object
-				when Symbol then
-					send "#{direction}_#{object}"
-				when Class then
-					send("#{direction}_abstract").
-						where "#{attribute}_type" => object.base_class
-				else
-					where "#{attribute}_type" => object.class.base_class,
-					      "#{attribute}_id"   => object.id
-				end
-			}
-		}.(direction, attribute)
+		scope method, -> (object) {
+			case object
+			when Symbol then
+				send "#{method}_#{object}"
+			when Class then
+				send("#{method}_abstract").
+					where "#{association}_type" => object.base_class
+			else
+				where "#{association}_type" => object.class.base_class,
+				      "#{association}_id"   => object.id
+			end
+		}
 	end
 
 	scope :abstract, -> {
