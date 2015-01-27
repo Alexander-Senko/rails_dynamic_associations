@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
 	s.description = 'Define your model associations in the database without changing the schema or models.'
 	s.license     = 'MIT'
 
-	s.files = Dir['{app,config,db,lib}/**/*'] + ['MIT-LICENSE', 'Rakefile', 'README.rdoc']
+	s.files = Dir['{app,config,db,lib}/**/*'] + ['MIT-LICENSE', 'Rakefile', 'README.md']
 
 	s.add_dependency 'rails', '~> 3.2'
 	s.add_dependency 'rails_model_load_hook'
