@@ -6,8 +6,13 @@ class Relation < ActiveRecord::Base
 	delegate :name, to: :role, allow_nil: true
 
 	RailsDynamicAssociations.directions.each &-> (association, method) do
-		scope "#{method}_abstract", -> {
-			where "#{association}_id" => nil
+		scope "#{method}_abstract", -> (object = nil) {
+			if object then
+				send method, object
+			else
+				all
+			end.
+				where "#{association}_id"   => nil
 		}
 
 		scope "#{method}_general", -> {
@@ -20,8 +25,7 @@ class Relation < ActiveRecord::Base
 			when Symbol then
 				send "#{method}_#{object}"
 			when Class then
-				send("#{method}_abstract").
-					where "#{association}_type" => object.base_class
+				where "#{association}_type" => object.base_class
 			else
 				where "#{association}_type" => object.class.base_class,
 				      "#{association}_id"   => object.id
