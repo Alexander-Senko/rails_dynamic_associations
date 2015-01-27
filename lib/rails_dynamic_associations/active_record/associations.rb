@@ -21,8 +21,8 @@ module RailsDynamicAssociations::ActiveRecord
 			def define_relations_association type, target = self, role = nil
 				:"#{role ? association_name(type, target, role).to_s.singularize : type}_relations".tap do |association|
 					unless association.in? reflections then
-						has_many association, conditions: role && { role_id: role.id },
-						         as: (RailsDynamicAssociations.directions.keys - [ type ]).first, class_name: 'Relation'
+						has_many association, role && -> { where role_id: role.id },
+						         as: (RailsDynamicAssociations.directions.keys - [type]).first, class_name: 'Relation'
 					end
 				end
 			end
