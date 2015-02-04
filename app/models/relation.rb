@@ -8,11 +8,11 @@ class Relation < ActiveRecord::Base
 	RailsDynamicAssociations.directions.each &-> (association, method) do
 		scope "#{method}_abstract", -> (object = nil) {
 			if object then
-				send method, object
+				send("#{method}_abstract").
+					send method, object
 			else
-				all
-			end.
 				where "#{association}_id" => nil
+			end
 		}
 
 		scope "#{method}_general", -> {
@@ -22,6 +22,8 @@ class Relation < ActiveRecord::Base
 
 		scope method, -> (object) {
 			case object
+			when nil then
+				# all
 			when Symbol then
 				send "#{method}_#{object}"
 			when Class then
@@ -46,6 +48,8 @@ class Relation < ActiveRecord::Base
 		case names
 		when []   then # i.e. `named`
 			where.not roles: { name: nil }
+		when [[]] then # i.e. `named []`
+			# all
 		else
 			where     roles: { name: names.flatten.map(&:to_s) }
 		end
