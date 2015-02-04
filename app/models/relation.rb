@@ -12,7 +12,7 @@ class Relation < ActiveRecord::Base
 			else
 				all
 			end.
-				where "#{association}_id"   => nil
+				where "#{association}_id" => nil
 		}
 
 		scope "#{method}_general", -> {
@@ -35,6 +35,20 @@ class Relation < ActiveRecord::Base
 
 	scope :abstract, -> {
 		of_abstract.to_abstract
+	}
+
+	scope :applied, -> {
+		where.not source_id: nil,
+		          target_id: nil
+	}
+
+	scope :named, -> (*names) {
+		case names
+		when []   then # i.e. `named`
+			where.not roles: { name: nil }
+		else
+			where     roles: { name: names.flatten.map(&:to_s) }
+		end
 	}
 
 	def self.seed source, target, roles = nil
