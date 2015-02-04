@@ -5,6 +5,10 @@ class Relation < ActiveRecord::Base
 
 	delegate :name, to: :role, allow_nil: true
 
+	default_scope {
+		references(:roles).includes :role
+	}
+
 	RailsDynamicAssociations.directions.each &-> (association, method) do
 		scope "#{method}_abstract", -> (object = nil) {
 			if object then
