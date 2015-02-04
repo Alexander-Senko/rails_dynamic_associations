@@ -8,15 +8,15 @@ class Role < ActiveRecord::Base
 	}
 
 	scope :available, -> {
-		with_relations { Relation.of_abstract }
+		with_relations { of_abstract }
 	}
 
 	scope :in, -> (object) {
-		with_relations { Relation.to object }
+		with_relations { to object }
 	}
 
 	scope :for, -> (subject) {
-		with_relations { Relation.of subject }
+		with_relations { of subject }
 	}
 
 	def self.find_or_create_named *names
@@ -29,11 +29,9 @@ class Role < ActiveRecord::Base
 			}
 	end
 
-	private
-
 	def self.with_relations &block
 		joins(:relations).merge(
-			yield
+			Relation.instance_eval &block
 		).uniq
 	end
 end
