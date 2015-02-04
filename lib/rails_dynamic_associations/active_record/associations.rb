@@ -77,24 +77,32 @@ module RailsDynamicAssociations::ActiveRecord
 
 			def association_name type, target = self, role = nil
 				if role then
-					if target == self || target <= User then
-						{
-							source: role.name,
-							target: "#{role.name.passivize}_#{target.name.split('::').reverse.join}",
-						}[type]
-					else
-						"#{{
-							source: role.name,
-							target: role.name.passivize,
-						}[type]}_#{association_name type, target}"
-					end
+					association_name_with_role    type, target, role
 				else
-					if target == self then
-						RailsDynamicAssociations.self_referential[type].to_s
-					else
-						target.name.split('::').reverse.join
-					end
+					association_name_without_role type, target
 				end.tableize.to_sym
+			end
+
+			def association_name_with_role type, target, role
+				if target == self or target <= User then
+					{
+						source: role.name,
+						target: "#{role.name.passivize}_#{target.name.split('::').reverse.join}",
+					}[type]
+				else
+					"#{{
+						source: role.name,
+						target: role.name.passivize,
+					}[type]}_#{association_name_without_role type, target}"
+				end
+			end
+
+			def association_name_without_role type, target
+				if target == self then
+					RailsDynamicAssociations.self_referential[type].to_s
+				else
+					target.name.split('::').reverse.join
+				end
 			end
 		end
 	end
