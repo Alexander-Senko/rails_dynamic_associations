@@ -8,16 +8,15 @@ class Role < ActiveRecord::Base
 	}
 
 	scope :available, -> {
-		includes(:relations).
-			where relations: { id: Relation.of_abstract } # TODO: simplify
+		with_relations { Relation.of_abstract }
 	}
 
 	scope :in, -> (object) {
-		where relations: { id: Relation.to(object) } # TODO: simplify
+		with_relations { Relation.to object }
 	}
 
 	scope :for, -> (subject) {
-		where relations: { id: Relation.of(subject) } # TODO: simplify
+		with_relations { Relation.of subject }
 	}
 
 	def self.find_or_create_named *names
@@ -28,5 +27,13 @@ class Role < ActiveRecord::Base
 			(names - existing.map(&:name)).map { |name|
 				create name: name
 			}
+	end
+
+	private
+
+	def self.with_relations &block
+		joins(:relations).merge(
+			yield
+		).uniq
 	end
 end
