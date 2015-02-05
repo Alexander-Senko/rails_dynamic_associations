@@ -50,12 +50,12 @@ class Relation < ActiveRecord::Base
 
 	scope :named, -> (*names) {
 		case names
-		when []   then # i.e. `named`
-			where.not roles: { name: nil }
 		when [[]] then # i.e. `named []`
 			# all
+		when []   then # i.e. `named`
+			where.not role_id: nil
 		else
-			where     roles: { name: names.flatten.map(&:to_s) }
+			with_roles { named *names }
 		end
 	}
 
