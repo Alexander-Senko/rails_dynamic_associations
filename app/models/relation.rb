@@ -59,6 +59,12 @@ class Relation < ActiveRecord::Base
 		end
 	}
 
+	def self.with_roles &block
+		joins(:role).merge(
+			Role.instance_eval &block
+		).uniq
+	end
+
 	def self.seed source, target, roles = nil
 		(roles.present? ? by_roles(roles) : [ self ]).map do |scope|
 			scope.create source_type: source,
