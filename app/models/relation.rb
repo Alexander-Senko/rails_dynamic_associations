@@ -66,15 +66,11 @@ class Relation < ActiveRecord::Base
 	end
 
 	def self.seed source, target, roles = nil
-		(roles.present? ? by_roles(roles) : [ self ]).map do |scope|
-			scope.create source_type: source,
-			             target_type: target
+		(roles.present? ? Role.find_or_create_named(roles) : [ nil ]).map do |role|
+			create source_type: source,
+			       target_type: target,
+			       role:        role
 		end
-	end
-
-	def self.by_roles *names
-		Role.find_or_create_named(*names).
-			map &:relations
 	end
 
 

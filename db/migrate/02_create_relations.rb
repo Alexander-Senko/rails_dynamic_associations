@@ -1,6 +1,8 @@
 class CreateRelations < ActiveRecord::Migration
 	def change
 		create_table :relations do |t|
+			t.string     :type
+
 			t.references :source, polymorphic: { default: 'User' }
 			t.references :target, polymorphic: true
 			t.references :role
