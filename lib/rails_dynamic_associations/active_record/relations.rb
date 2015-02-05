@@ -34,27 +34,27 @@ module RailsDynamicAssociations::ActiveRecord
 			protected
 
 			# TODO: use keyword arguments
-			# TODO: simplify
 			def find_relations args = {}
 				directions = RailsDynamicAssociations.directions
 
 				# Rearrange arguments
 				for direction, method in directions do
-					args[direction] = args.delete method
+					args[direction] = args.delete method if
+						method.in? args
 				end
 
-				relations = directions.keys.each_with_object({}) do |(direction), relations|
-					relations[direction] = find_relations_with_direction(*[
-						direction, args.include?(:as) ? [ args[:as] ].flatten : nil
-					].compact)
-				end
+				roles = :as.in?(args) ?
+					[ args[:as] ].flatten :
+					[]
 
-				if direction = directions.keys.find { |a| args[a] } then # direction specified
-					relations[direction].send(
+				if direction = directions.keys.find { |a| a.in? args } then # direction specified
+					find_relations_with_direction(direction, roles).send(
 						directions[direction], args[direction] # apply a filtering scope
 					)
 				else # both directions
-					relations.values.sum
+					directions.keys.map do |direction|
+						find_relations_with_direction direction, roles
+					end.sum
 				end
 			end
 
