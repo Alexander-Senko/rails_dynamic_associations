@@ -23,7 +23,7 @@ class Role < ActiveRecord::Base
 		names.flatten!
 		names.compact!
 
-		(existing = named(names)).all +
+		(existing = named(names)).to_a +
 			(names - existing.map(&:name)).map { |name|
 				create name: name
 			}
