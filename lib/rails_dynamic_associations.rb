@@ -30,6 +30,6 @@ module RailsDynamicAssociations
 			end
 		end
 	end
-end
 
-require 'rails_dynamic_associations/active_record'
+	autoload :ActiveRecord, 'rails_dynamic_associations/active_record'
+end
