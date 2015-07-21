@@ -79,6 +79,9 @@ class Relation < ActiveRecord::Base
 			Role.find_or_initialize_by(name: role_name)
 	end
 
+	def abstract?
+		not (source_id or target_id)
+	end
 
 	# Using polymorphic associations in combination with single table inheritance (STI) is
 	# a little tricky. In order for the associations to work as expected, ensure that you
