@@ -11,6 +11,6 @@ class CreateRelations < ActiveRecord::Migration
 		end
 
 		add_index :relations, [ :source_id, :source_type, :target_id, :target_type, :role_id ], unique: true,
-		          name: 'index_relations_on_source_and_target_and_role'
+			name: 'index_relations_on_source_and_target_and_role'
 	end
 end

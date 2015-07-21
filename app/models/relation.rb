@@ -9,7 +9,7 @@ class Relation < ActiveRecord::Base
 		references(:roles).includes :role
 	}
 
-	RailsDynamicAssociations.directions.each &-> (association, method) do
+	association_directions.shortcuts.each &-> (association, method) do
 		scope "#{method}_abstract", -> (object = nil) {
 			if object then
 				send("#{method}_abstract").

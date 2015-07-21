@@ -5,13 +5,15 @@ module RailsDynamicAssociations::ActiveRecord
 		extend ActiveSupport::Concern
 
 		module ClassMethods
+			include RailsDynamicAssociations::Config
+
 			protected
 
 			def setup_relation type, target = self, role = nil
 				define_association type, target
 				define_association type, target, role if role
 
-				for association, method in RailsDynamicAssociations.self_referential_recursive do
+				for association, method in association_directions.recursive do
 					define_recursive_methods association, method if association.in? reflections and not method_defined? method
 				end
 			end
@@ -22,7 +24,7 @@ module RailsDynamicAssociations::ActiveRecord
 				:"#{role ? association_name(type, target, role).to_s.singularize : type}_relations".tap do |association|
 					unless association.in? reflections then
 						has_many association, role && -> { where role_id: role.id },
-						         as: (RailsDynamicAssociations.directions.keys - [type]).first, class_name: 'Relation'
+							as: association_directions.opposite(type), class_name: 'Relation'
 					end
 				end
 			end
@@ -30,10 +32,10 @@ module RailsDynamicAssociations::ActiveRecord
 			def define_association type, target = self, role = nil
 				unless (association = association_name(type, target, role)).in? reflections then
 					has_many association,
-					         through:     define_relations_association(type, target, role),
-					         source:      type,
-					         source_type: target.base_class.name,
-					         class_name:  target.name
+						through:     define_relations_association(type, target, role),
+						source:      type,
+						source_type: target.base_class.name,
+						class_name:  target.name
 
 					define_association_with_roles association unless role
 
@@ -99,7 +101,7 @@ module RailsDynamicAssociations::ActiveRecord
 
 			def association_name_without_role type, target
 				if target == self then
-					RailsDynamicAssociations.self_referential[type].to_s
+					association_directions.selfed[type].to_s
 				else
 					target.name.split('::').reverse.join
 				end

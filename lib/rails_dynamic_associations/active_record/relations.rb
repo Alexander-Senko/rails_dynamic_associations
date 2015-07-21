@@ -10,7 +10,7 @@ module RailsDynamicAssociations::ActiveRecord
 		end
 
 		module ClassMethods
-			RailsDynamicAssociations.opposite_directions.each &-> (association, method) do
+			RailsDynamicAssociations::Config.association_directions.opposite_shortcuts.each &-> (association, method) do
 				define_method "#{association}_relations" do
 					Relation.send method, self
 				end
@@ -27,7 +27,7 @@ module RailsDynamicAssociations::ActiveRecord
 				find_relations(args).
 					map { |r|
 						# TODO: optimize queries
-						(RailsDynamicAssociations.directions.keys.map { |d| r.send d } - [ self ]).first
+						(association_directions.map { |d| r.send d } - [ self ]).first
 					}.uniq
 			end
 
@@ -35,10 +35,8 @@ module RailsDynamicAssociations::ActiveRecord
 
 			# TODO: use keyword arguments
 			def find_relations args = {}
-				directions = RailsDynamicAssociations.directions
-
 				# Rearrange arguments
-				for direction, method in directions do
+				for direction, method in association_directions.shortcuts do
 					args[direction] = args.delete method if
 						method.in? args
 				end
@@ -47,12 +45,12 @@ module RailsDynamicAssociations::ActiveRecord
 					[ args[:as] ].flatten :
 					[]
 
-				if direction = directions.keys.find { |a| a.in? args } then # direction specified
+				if direction = association_directions.find { |a| a.in? args } then # direction specified
 					find_relations_with_direction(direction, roles).send(
-						directions[direction], args[direction] # apply a filtering scope
+						association_directions.shortcuts[direction], args[direction] # apply a filtering scope
 					)
 				else # both directions
-					directions.keys.map do |direction|
+					association_directions.map do |direction|
 						find_relations_with_direction direction, roles
 					end.sum
 				end
