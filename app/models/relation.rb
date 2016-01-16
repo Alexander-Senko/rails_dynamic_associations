@@ -31,9 +31,9 @@ class Relation < ActiveRecord::Base
 			when Symbol then
 				send "#{method}_#{object}"
 			when Class then
-				where "#{association}_type" => object.base_class
+				where "#{association}_type" => object.base_class.name
 			else
-				where "#{association}_type" => object.class.base_class,
+				where "#{association}_type" => object.class.base_class.name,
 				      "#{association}_id"   => object.id
 			end
 		}
