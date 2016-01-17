@@ -1,7 +1,7 @@
 class Relation < ActiveRecord::Base
-	belongs_to :source, polymorphic: true
-	belongs_to :target, polymorphic: true
-	belongs_to :role
+	belongs_to :source, polymorphic: true, optional: true
+	belongs_to :target, polymorphic: true, optional: true
+	belongs_to :role,                      optional: true
 
 	delegate :name, to: :role, allow_nil: true
 
