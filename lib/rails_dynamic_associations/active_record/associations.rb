@@ -13,24 +13,27 @@ module RailsDynamicAssociations::ActiveRecord
 				define_association type, target
 				define_association type, target, role if role
 
-				for association, method in association_directions.recursive do
-					define_recursive_methods association, method if association.in? reflections and not method_defined? method
-				end
+				association_directions.recursive
+					.select { |association, method| reflect_on_association association }
+					.reject { |association, method| method_defined? method }
+					.each   { |association, method| define_recursive_methods association, method }
 			end
 
 			private
 
 			def define_relations_association type, target = self, role = nil
-				:"#{role ? association_name(type, target, role).to_s.singularize : type}_relations".tap do |association|
-					unless association.in? reflections then
-						has_many association, role && -> { where role_id: role.id },
-							as: association_directions.opposite(type), class_name: 'Relation'
-					end
+				relations_association_name(type, target, role).tap do |association|
+					next if reflect_on_association association
+
+					has_many association, role && -> { where role_id: role.id },
+						as: association_directions.opposite(type), class_name: 'Relation'
 				end
 			end
 
 			def define_association type, target = self, role = nil
-				unless (association = association_name(type, target, role)).in? reflections then
+				association_name(type, target, role).tap do |association|
+					next if reflect_on_association association
+
 					has_many association,
 						through:     define_relations_association(type, target, role),
 						source:      type,
@@ -75,6 +78,10 @@ module RailsDynamicAssociations::ActiveRecord
 				redefine_method method do
 					send(tree_method).flatten
 				end
+			end
+
+			def relations_association_name type, target = self, role = nil
+				:"#{role ? association_name(type, target, role).to_s.singularize : type}_relations"
 			end
 
 			def association_name type, target = self, role = nil
