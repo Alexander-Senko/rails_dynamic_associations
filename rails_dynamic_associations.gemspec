@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 2.7'
 
-	s.add_dependency 'rails', '>= 5.0.0.beta'
+	s.add_dependency 'rails', '~> 7.0'
 	s.add_dependency 'rails_model_load_hook'
 
 	s.add_development_dependency 'sqlite3'
