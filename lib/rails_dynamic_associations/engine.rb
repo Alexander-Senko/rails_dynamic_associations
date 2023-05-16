@@ -16,5 +16,9 @@ module RailsDynamicAssociations
 				},
 			},
 		}
+
+		config.actor_model_names = %w[
+				User
+		]
 	end
 end

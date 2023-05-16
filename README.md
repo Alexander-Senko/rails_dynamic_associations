@@ -63,7 +63,7 @@ You will get:
 	book.editor_people
 ```
 
-#### `User` special case
+#### Special cases
 
 In case you have set up relations with a `User` model you'll get a slightly different naming:
 
@@ -79,6 +79,9 @@ In case you have set up relations with a `User` model you'll get a slightly diff
 	book.authors
 	book.editors
 ```
+
+The list of models to be handled this way can be set with `actor_model_names` configuration parameter.
+It includes `User` by default.
 
 ###### TODO
 

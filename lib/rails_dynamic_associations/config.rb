@@ -58,5 +58,11 @@ module RailsDynamicAssociations
 					end
 				end
 		end
+
+		def actor_models
+			@actor_models ||=
+					Engine.config.actor_model_names
+							.filter_map &:safe_constantize
+		end
 	end
 end

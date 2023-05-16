@@ -19,6 +19,10 @@ module RailsDynamicAssociations::ActiveRecord
 					.each   { |association, method| define_recursive_methods association, method }
 			end
 
+			def actor?
+				actor_models.any? { self <= _1 }
+			end
+
 			private
 
 			def define_relations_association type, target = self, role = nil
@@ -93,7 +97,7 @@ module RailsDynamicAssociations::ActiveRecord
 			end
 
 			def association_name_with_role type, target, role
-				if target == self or target <= User then
+				if target == self or target.actor?
 					{
 						source: role.name,
 						target: "#{role.name.passivize}_#{target.name.split('::').reverse.join}",
