@@ -2,7 +2,16 @@ module RailsDynamicAssociations
 	module Config
 		module Naming
 			def shortcuts
-				config :shortcut
+				@shortcuts ||=
+						config(:shortcut).tap do |shortcuts|
+							def shortcuts.opposite to: nil
+								if to
+									values.reject { _1 == to }.sole
+								else
+									transform_values { opposite to: _1 }
+								end
+							end
+						end
 			end
 
 			def selfed
@@ -17,16 +26,8 @@ module RailsDynamicAssociations
 				end
 			end
 
-			def opposite direction
-				find { |d| d != direction }
-			end
-
-			def opposite_shortcuts
-				shortcuts.each_with_object({}) do |(key, value), hash|
-					hash[key] = shortcuts.values.find do |v|
-						v != value
-					end
-				end
+			def opposite to:
+				reject { _1 == to }.sole
 			end
 
 			private

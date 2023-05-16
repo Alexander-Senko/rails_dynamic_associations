@@ -15,14 +15,8 @@ module RailsDynamicAssociations::ActiveRecord
 			def relations
 				@relations ||=
 						association_directions.to_h do
-							[ _1, Relation.abstract.send(association_directions.opposite_shortcuts[_1], self) ]
+							[ _1, Relation.abstract.send(association_directions.shortcuts.opposite[_1], self) ]
 						end
-			end
-
-			RailsDynamicAssociations::Config.association_directions.opposite_shortcuts.each &-> ((association, method)) do
-				define_method "#{association}_relations" do
-					Relation.send method, self
-				end
 			end
 		end
 

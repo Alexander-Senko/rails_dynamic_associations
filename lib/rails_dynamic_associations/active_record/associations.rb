@@ -9,6 +9,14 @@ module RailsDynamicAssociations::ActiveRecord
 
 			protected
 
+			def setup_relations
+				relations.each do |type, relations|
+					for relation in relations.select(&:"#{type}_type") do
+						setup_relation type, relation.send("#{type}_type").constantize, relation.role
+					end
+				end
+			end
+
 			def setup_relation type, target = self, role = nil
 				define_association type, target
 				define_association type, target, role if role
@@ -30,7 +38,7 @@ module RailsDynamicAssociations::ActiveRecord
 					next if reflect_on_association association
 
 					has_many association, role && -> { where role_id: role.id },
-						as: association_directions.opposite(type), class_name: 'Relation'
+						as: association_directions.opposite(to: type), class_name: 'Relation'
 				end
 			end
 
