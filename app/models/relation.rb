@@ -62,7 +62,7 @@ class Relation < ActiveRecord::Base
 	def self.with_roles &block
 		joins(:role).merge(
 				Role.instance_eval &block
-		).uniq
+		)
 	end
 
 	def self.seed source, target, roles = nil

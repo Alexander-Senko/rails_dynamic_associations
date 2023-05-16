@@ -4,11 +4,6 @@ module RailsDynamicAssociations::ActiveRecord
 	module Relations
 		extend ActiveSupport::Concern
 
-		included do
-			extend  ClassAndInstanceMethods
-			include ClassAndInstanceMethods
-		end
-
 		class_methods do
 			include RailsDynamicAssociations::Config
 
@@ -20,53 +15,43 @@ module RailsDynamicAssociations::ActiveRecord
 			end
 		end
 
-		module ClassAndInstanceMethods
-			def relative? args = {}
-				find_relations(args).
-					present?
+		module InstanceMethods # to include when needed
+			include RailsDynamicAssociations::Config
+
+			def related?(...)
+				relations(...)
+						.values
+						.reduce(&:or)
+						.any?
 			end
 
-			def relatives args = {}
-				find_relations(args).
-					map { |r|
-						# TODO: optimize queries
-						(association_directions.map { |d| r.send d } - [ self ]).first
-					}.uniq
+			def related(...)
+				relations(...)
+						.flat_map do |direction, relations|
+							relations
+									.preload(direction)
+									.map &direction
+						end
+						.uniq
 			end
 
-			protected
-
-			# TODO: use keyword arguments
-			def find_relations args = {}
-				# Rearrange arguments
-				for direction, method in association_directions.shortcuts do
-					args[direction] = args.delete method if
-						method.in? args
-				end
-
-				roles = :as.in?(args) ?
-					[ args[:as] ].flatten :
-					[]
-
-				if direction = association_directions.find { |a| a.in? args } then # direction specified
-					find_relations_with_direction(direction, roles).send(
-						association_directions.shortcuts[direction], args[direction] # apply a filtering scope
-					)
+			def relations *roles, **options
+				if (direction, scope = find_direction options)
+					{
+							direction => relations_to(direction)
+									.try(association_directions.shortcuts[direction], scope) # filter by related objects
+					}
 				else # both directions
-					association_directions.map do |direction|
-						find_relations_with_direction direction, roles
-					end.sum
+					association_directions.to_h { [ _1, relations_to(_1) ] }
 				end
+						.reject { _2.nil? }
+						.transform_values { roles.any? ? _1.named(roles) : _1  } # filter by role
 			end
 
 			private
 
-			def find_relations_with_direction direction, roles = []
-				if respond_to? association = "#{direction}_relations" then
-					send(association).named roles
-				else
-					Relation.none
-				end
+			def relations_to direction
+				try "#{direction}_relations"
 			end
 		end
 	end

@@ -65,5 +65,18 @@ module RailsDynamicAssociations
 					Engine.config.actor_model_names
 							.filter_map &:safe_constantize
 		end
+
+		def find_direction options
+			normalize(options)
+					.find { _1.in? association_directions }
+		end
+
+		def normalize options
+			options.tap do |options|
+				association_directions.shortcuts
+						.select { _2.in? options }
+						.each { options[_1] = options.delete _2 }
+			end
+		end
 	end
 end
