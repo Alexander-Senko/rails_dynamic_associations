@@ -26,15 +26,17 @@ class Relation < ActiveRecord::Base
 
 		scope method, -> (object) {
 			case object
-			when nil then
-				# all
-			when Symbol then
+			when ActiveRecord::Base, nil
+				where association => object
+			when Class
+				where "#{association}_type" => object.ancestors.select { _1 <= object.base_class }.map(&:name)
+			when ActiveRecord::Relation
+				send(method, object.klass)
+						.where "#{association}_id" => object
+			when Symbol
 				send "#{method}_#{object}"
-			when Class then
-				where "#{association}_type" => object.base_class.name
 			else
-				where "#{association}_type" => object.class.base_class.name,
-				      "#{association}_id"   => object.id
+				raise ArgumentError, "no relations for #{object.inspect}"
 			end
 		}
 	end
