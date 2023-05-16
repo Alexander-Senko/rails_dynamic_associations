@@ -52,9 +52,7 @@ class Relation < ActiveRecord::Base
 
 	scope :named, -> (*names) {
 		case names
-		when [[]] then # i.e. `named []`
-			# all
-		when []   then # i.e. `named`
+		when [] # i.e. `named`
 			where.not role_id: nil
 		else
 			with_roles { named *names }
