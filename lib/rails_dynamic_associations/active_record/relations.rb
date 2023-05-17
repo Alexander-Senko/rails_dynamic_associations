@@ -19,7 +19,7 @@ module RailsDynamicAssociations::ActiveRecord
 						end
 			end
 
-			association_directions.opposite_shortcuts.each &-> ((association, method)) do
+			RailsDynamicAssociations::Config.association_directions.opposite_shortcuts.each &-> ((association, method)) do
 				define_method "#{association}_relations" do
 					Relation.send method, self
 				end
