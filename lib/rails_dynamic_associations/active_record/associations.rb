@@ -4,7 +4,7 @@ module RailsDynamicAssociations::ActiveRecord
 	module Associations
 		extend ActiveSupport::Concern
 
-		module ClassMethods
+		class_methods do
 			include RailsDynamicAssociations::Config
 
 			protected

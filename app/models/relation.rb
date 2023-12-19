@@ -53,7 +53,7 @@ class Relation < ActiveRecord::Base
 	scope :named, -> (*names) {
 		case names
 		when [] # i.e. `named`
-			where.not role_id: nil
+			where.associated :role
 		else
 			with_roles { named *names }
 		end
@@ -61,15 +61,16 @@ class Relation < ActiveRecord::Base
 
 	def self.with_roles &block
 		joins(:role).merge(
-			Role.instance_eval &block
+				Role.instance_eval &block
 		).uniq
 	end
 
 	def self.seed source, target, roles = nil
 		(roles.present? ? Role.find_or_create_named(roles) : [ nil ]).map do |role|
-			create source_type: source,
-			       target_type: target,
-			       role:        role
+			create role: role do
+				_1[:source_type] = source
+				_1[:target_type] = target
+			end
 		end
 	end
 

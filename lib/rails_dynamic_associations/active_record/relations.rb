@@ -9,7 +9,7 @@ module RailsDynamicAssociations::ActiveRecord
 			include ClassAndInstanceMethods
 		end
 
-		module ClassMethods
+		class_methods do
 			include RailsDynamicAssociations::Config
 
 			def relations
