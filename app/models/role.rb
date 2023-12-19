@@ -19,6 +19,11 @@ class Role < ActiveRecord::Base
 		with_relations { of subject }
 	}
 
+	def self.[] name
+		find_by(name:) or
+			raise ArgumentError, "Couldn't find #{self} `#{name}`"
+	end
+
 	def self.find_or_create_named *names
 		names.flatten!
 		names.compact!
