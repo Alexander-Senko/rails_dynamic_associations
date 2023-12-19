@@ -59,6 +59,8 @@ class Relation < ActiveRecord::Base
 		end
 	}
 
+	scope :nameless, -> { where.missing :role }
+
 	def self.with_roles &block
 		joins(:role).merge(
 				Role.instance_eval &block
