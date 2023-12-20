@@ -1,6 +1,9 @@
-# RailsDynamicAssociations
+# Rails Dynamic Associations
 
 Define your model associations in the database without changing the schema or models.
+
+## DEPRECATED
+Use [Adjustable Schema](https://github.com/Alexander-Senko/adjustable_schema) instead. It has a similar API, though it's not backward-compatible.
 
 ## Features
 
