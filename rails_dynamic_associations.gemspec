@@ -14,6 +14,8 @@ Gem::Specification.new do |s|
 	s.description = 'Define your model associations in the database without changing the schema or models.'
 	s.license     = 'MIT'
 
+	s.post_install_message = RailsDynamicAssociations::DEPRECATION_MESSAGE
+
 	s.files = Dir['{app,config,db,lib}/**/*'] + ['MIT-LICENSE', 'Rakefile', 'README.md']
 
   s.required_ruby_version = '>= 2.7'
